@@ -9,15 +9,21 @@ use AzozzALFiras\PaymentGateway\Contracts\GatewayInterface;
 use AzozzALFiras\PaymentGateway\Gateways\MyFatoorah\MyFatoorahGateway;
 use AzozzALFiras\PaymentGateway\Gateways\Paylink\PaylinkGateway;
 use AzozzALFiras\PaymentGateway\Gateways\EdfaPay\EdfaPayGateway;
+use AzozzALFiras\PaymentGateway\Gateways\Tap\TapGateway;
+use AzozzALFiras\PaymentGateway\Gateways\ClickPay\ClickPayGateway;
+use AzozzALFiras\PaymentGateway\Gateways\Tamara\TamaraGateway;
+use AzozzALFiras\PaymentGateway\Gateways\Thawani\ThawaniGateway;
+use AzozzALFiras\PaymentGateway\Gateways\Fatora\FatoraGateway;
+use AzozzALFiras\PaymentGateway\Gateways\Payzaty\PayzatyGateway;
+use AzozzALFiras\PaymentGateway\Gateways\Payzah\PayzahGateway;
 
 /**
  * Payment Gateway Factory — the single entry point for creating gateway instances.
  *
  * Usage:
  *   $gateway = PaymentGateway::create('myfatoorah', ['api_key' => '...']);
- *   $gateway = PaymentGateway::myfatoorah(['api_key' => '...']);
- *   $gateway = PaymentGateway::paylink(['api_id' => '...', 'secret_key' => '...']);
- *   $gateway = PaymentGateway::edfapay(['client_key' => '...', 'password' => '...']);
+ *   $gateway = PaymentGateway::tap(['secret_key' => '...']);
+ *   $gateway = PaymentGateway::clickpay(['server_key' => '...', 'profile_id' => '...']);
  */
 final class PaymentGateway
 {
@@ -30,12 +36,19 @@ final class PaymentGateway
         'myfatoorah' => MyFatoorahGateway::class,
         'paylink'    => PaylinkGateway::class,
         'edfapay'    => EdfaPayGateway::class,
+        'tap'        => TapGateway::class,
+        'clickpay'   => ClickPayGateway::class,
+        'tamara'     => TamaraGateway::class,
+        'thawani'    => ThawaniGateway::class,
+        'fatora'     => FatoraGateway::class,
+        'payzaty'    => PayzatyGateway::class,
+        'payzah'     => PayzahGateway::class,
     ];
 
     /**
      * Create a gateway instance by driver name.
      *
-     * @param string               $driver  One of: myfatoorah, paylink, edfapay
+     * @param string               $driver  e.g. myfatoorah, paylink, edfapay, tap, clickpay, tamara, etc.
      * @param array<string, mixed> $config  Gateway-specific configuration
      * @return GatewayInterface
      *
@@ -58,9 +71,11 @@ final class PaymentGateway
         return new $gatewayClass(new GatewayConfig($config));
     }
 
+    // ──────────────────────────────────────────
+    //  Typed Factory Methods
+    // ──────────────────────────────────────────
+
     /**
-     * Create a MyFatoorah gateway instance.
-     *
      * @param array<string, mixed> $config
      */
     public static function myfatoorah(array $config = []): MyFatoorahGateway
@@ -70,8 +85,6 @@ final class PaymentGateway
     }
 
     /**
-     * Create a Paylink gateway instance.
-     *
      * @param array<string, mixed> $config
      */
     public static function paylink(array $config = []): PaylinkGateway
@@ -81,14 +94,75 @@ final class PaymentGateway
     }
 
     /**
-     * Create an EdfaPay gateway instance.
-     *
      * @param array<string, mixed> $config
      */
     public static function edfapay(array $config = []): EdfaPayGateway
     {
         $config['driver'] = 'edfapay';
         return new EdfaPayGateway(new GatewayConfig($config));
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public static function tap(array $config = []): TapGateway
+    {
+        $config['driver'] = 'tap';
+        return new TapGateway(new GatewayConfig($config));
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public static function clickpay(array $config = []): ClickPayGateway
+    {
+        $config['driver'] = 'clickpay';
+        return new ClickPayGateway(new GatewayConfig($config));
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public static function tamara(array $config = []): TamaraGateway
+    {
+        $config['driver'] = 'tamara';
+        return new TamaraGateway(new GatewayConfig($config));
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public static function thawani(array $config = []): ThawaniGateway
+    {
+        $config['driver'] = 'thawani';
+        return new ThawaniGateway(new GatewayConfig($config));
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public static function fatora(array $config = []): FatoraGateway
+    {
+        $config['driver'] = 'fatora';
+        return new FatoraGateway(new GatewayConfig($config));
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public static function payzaty(array $config = []): PayzatyGateway
+    {
+        $config['driver'] = 'payzaty';
+        return new PayzatyGateway(new GatewayConfig($config));
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public static function payzah(array $config = []): PayzahGateway
+    {
+        $config['driver'] = 'payzah';
+        return new PayzahGateway(new GatewayConfig($config));
     }
 
     /**
