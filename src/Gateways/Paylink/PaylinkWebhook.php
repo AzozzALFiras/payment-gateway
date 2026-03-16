@@ -6,12 +6,15 @@ namespace AzozzALFiras\PaymentGateway\Gateways\Paylink;
 
 use AzozzALFiras\PaymentGateway\Config\GatewayConfig;
 use AzozzALFiras\PaymentGateway\DTOs\WebhookPayload;
+use AzozzALFiras\PaymentGateway\Security\SignatureVerifier;
 use AzozzALFiras\PaymentGateway\Support\Arr;
 
 /**
  * Paylink Webhook Handler.
  *
- * Parses and validates incoming webhook notifications from Paylink.
+ * Uses centralized SignatureVerifier for HMAC-SHA256 verification.
+ *
+ * @link https://developer.paylink.sa/docs/webhook
  */
 class PaylinkWebhook
 {
@@ -45,7 +48,7 @@ class PaylinkWebhook
     }
 
     /**
-     * Verify the webhook payload.
+     * Verify the webhook signature using HMAC-SHA256.
      *
      * @param array<string, mixed>  $payload
      * @param array<string, string> $headers
@@ -59,20 +62,14 @@ class PaylinkWebhook
             return true;
         }
 
-        $signature = $headers['X-Paylink-Signature']
-            ?? $headers['x-paylink-signature']
-            ?? '';
+        $signature = SignatureVerifier::extractSignature($headers, ['X-Paylink-Signature', 'x-paylink-signature']);
 
         if ($signature === '') {
             return false;
         }
 
-        $computedSignature = hash_hmac(
-            'sha256',
-            json_encode($payload, JSON_THROW_ON_ERROR),
-            (string) $webhookSecret
-        );
+        $payloadString = json_encode($payload, JSON_THROW_ON_ERROR);
 
-        return hash_equals($computedSignature, $signature);
+        return SignatureVerifier::verifyHmacSha256($payloadString, $signature, (string) $webhookSecret);
     }
 }

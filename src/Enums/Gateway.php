@@ -25,6 +25,7 @@ enum Gateway: string
     case FATORA     = 'fatora';
     case PAYZATY    = 'payzaty';
     case PAYZAH     = 'payzah';
+    case STRIPE     = 'stripe';
 
     /**
      * Human-readable gateway name.
@@ -42,6 +43,7 @@ enum Gateway: string
             self::FATORA     => 'Fatora',
             self::PAYZATY    => 'Payzaty',
             self::PAYZAH     => 'Payzah',
+            self::STRIPE     => 'Stripe',
         };
     }
 
@@ -63,6 +65,7 @@ enum Gateway: string
             self::FATORA     => ['SAU', 'ARE', 'QAT', 'BHR', 'KWT', 'OMN', 'IRQ', 'JOR', 'EGY'],
             self::PAYZATY    => ['SAU'],
             self::PAYZAH     => ['KWT'],
+            self::STRIPE     => ['USA', 'GBR', 'DEU', 'FRA', 'CAN', 'AUS', 'JPN', 'SGP', 'ARE', 'SAU', 'BHR', 'QAT', 'KWT', 'OMN', 'EGY', 'JOR'],
         };
     }
 
@@ -84,6 +87,7 @@ enum Gateway: string
             self::FATORA     => ['SAR', 'AED', 'QAR', 'BHD', 'KWD', 'OMR', 'IQD', 'JOD', 'EGP'],
             self::PAYZATY    => ['SAR'],
             self::PAYZAH     => ['KWD'],
+            self::STRIPE     => ['USD', 'EUR', 'GBP', 'SAR', 'AED', 'KWD', 'BHD', 'QAR', 'OMR', 'EGP', 'JOD'],
         };
     }
 
@@ -94,7 +98,7 @@ enum Gateway: string
     {
         return match ($this) {
             self::MYFATOORAH, self::EDFAPAY, self::TAP, self::CLICKPAY,
-            self::TAMARA, self::FATORA => true,
+            self::TAMARA, self::FATORA, self::STRIPE => true,
             default => false,
         };
     }

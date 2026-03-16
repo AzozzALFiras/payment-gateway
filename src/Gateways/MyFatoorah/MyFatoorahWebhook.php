@@ -6,12 +6,13 @@ namespace AzozzALFiras\PaymentGateway\Gateways\MyFatoorah;
 
 use AzozzALFiras\PaymentGateway\Config\GatewayConfig;
 use AzozzALFiras\PaymentGateway\DTOs\WebhookPayload;
+use AzozzALFiras\PaymentGateway\Security\SignatureVerifier;
 use AzozzALFiras\PaymentGateway\Support\Arr;
 
 /**
  * MyFatoorah Webhook Handler.
  *
- * Parses and validates incoming webhook notifications from MyFatoorah.
+ * Uses centralized SignatureVerifier for HMAC-SHA256 verification.
  *
  * @link https://docs.myfatoorah.com/docs/webhook
  */
@@ -49,10 +50,7 @@ class MyFatoorahWebhook
     }
 
     /**
-     * Verify the webhook signature.
-     *
-     * MyFatoorah webhooks include a signature header that should be validated
-     * against the webhook secret key.
+     * Verify the webhook signature using HMAC-SHA256.
      *
      * @param array<string, mixed>  $payload
      * @param array<string, string> $headers
@@ -62,25 +60,18 @@ class MyFatoorahWebhook
     {
         $webhookSecret = $this->config->get('webhook_secret');
 
-        // If no webhook secret is configured, skip verification
         if (empty($webhookSecret)) {
             return true;
         }
 
-        $signature = $headers['X-MyFatoorah-Signature']
-            ?? $headers['x-myfatoorah-signature']
-            ?? '';
+        $signature = SignatureVerifier::extractSignature($headers, ['X-MyFatoorah-Signature', 'x-myfatoorah-signature']);
 
         if ($signature === '') {
             return false;
         }
 
-        $computedSignature = hash_hmac(
-            'sha256',
-            json_encode($payload, JSON_THROW_ON_ERROR),
-            (string) $webhookSecret
-        );
+        $payloadString = json_encode($payload, JSON_THROW_ON_ERROR);
 
-        return hash_equals($computedSignature, $signature);
+        return SignatureVerifier::verifyHmacSha256($payloadString, $signature, (string) $webhookSecret);
     }
 }

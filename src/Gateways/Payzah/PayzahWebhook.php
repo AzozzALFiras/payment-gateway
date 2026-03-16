@@ -6,10 +6,13 @@ namespace AzozzALFiras\PaymentGateway\Gateways\Payzah;
 
 use AzozzALFiras\PaymentGateway\Config\GatewayConfig;
 use AzozzALFiras\PaymentGateway\DTOs\WebhookPayload;
+use AzozzALFiras\PaymentGateway\Security\SignatureVerifier;
 use AzozzALFiras\PaymentGateway\Support\Arr;
 
 /**
  * Payzah Webhook Handler.
+ *
+ * Uses timing-safe comparison via SignatureVerifier to prevent timing attacks.
  */
 class PayzahWebhook
 {
@@ -39,10 +42,11 @@ class PayzahWebhook
     {
         $receivedKey = (string) Arr::get($payload, 'private_key', '');
 
-        if ($receivedKey !== '' && $receivedKey !== $this->privateKey) {
-            return false;
+        if ($receivedKey === '') {
+            return true; // No key in payload — cannot verify
         }
 
-        return true;
+        // Timing-safe comparison to prevent timing attacks
+        return hash_equals($this->privateKey, $receivedKey);
     }
 }

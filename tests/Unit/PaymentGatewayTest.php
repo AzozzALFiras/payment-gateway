@@ -67,7 +67,7 @@ class PaymentGatewayTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Unsupported payment gateway driver');
 
-        PaymentGateway::create('stripe', []);
+        PaymentGateway::create('nonexistent_gateway', []);
     }
 
     public function testGetAvailableDrivers(): void
@@ -84,7 +84,8 @@ class PaymentGatewayTest extends TestCase
         $this->assertContains('fatora', $drivers);
         $this->assertContains('payzaty', $drivers);
         $this->assertContains('payzah', $drivers);
-        $this->assertCount(10, $drivers);
+        $this->assertContains('stripe', $drivers);
+        $this->assertCount(11, $drivers);
     }
 
     public function testCaseInsensitiveDriverName(): void

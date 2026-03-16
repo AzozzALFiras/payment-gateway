@@ -24,6 +24,7 @@ A **unified**, **extensible** PHP Composer package for integrating with **10 MEN
   - [Fatora](#fatora)
   - [Payzaty](#payzaty)
   - [Payzah](#payzah)
+  - [Stripe](#stripe)
 - [Architecture](#architecture)
 - [Factory Pattern](#factory-pattern)
 - [Feature Matrix](#feature-matrix)
@@ -53,6 +54,9 @@ A **unified**, **extensible** PHP Composer package for integrating with **10 MEN
     <td align="center"><img src="assets/logos/payzaty.png" width="80"><br><b>Payzaty</b></td>
     <td align="center"><img src="assets/logos/payzah.png" width="80"><br><b>Payzah</b></td>
   </tr>
+  <tr>
+    <td align="center" colspan="5"><img src="assets/logos/stripe.png" width="80"><br><b>Stripe</b></td>
+  </tr>
 </table>
 
 | Gateway | Classes | Key Features | Authentication | Supported Regions |
@@ -67,8 +71,9 @@ A **unified**, **extensible** PHP Composer package for integrating with **10 MEN
 | **Fatora** | 4 | Checkout, Verify, Refunds, Recurring (Card Tokenization) | API Key | 🇸🇦 SAU · 🇦🇪 ARE · 🇶🇦 QAT · 🇧🇭 BHR · 🇰🇼 KWT · 🇴🇲 OMN · 🇮🇶 IRQ · 🇯🇴 JOR · 🇪🇬 EGY |
 | **Payzaty** | 3 | Secure Checkout, Mada/VISA/MC/Apple Pay/STC Pay | Account No + Secret Key | 🇸🇦 SAU |
 | **Payzah** | 3 | Hosted Checkout, K-Net/VISA/MC/Apple Pay/Amex, Multi-vendor | Private Key | 🇰🇼 KWT |
+| **Stripe** | 6 | Checkout Sessions, Charges, Customers, Refunds, PaymentIntents, Webhooks | Secret Key (Bearer) | 🌍 46+ countries |
 
-> **44 PHP classes** across 10 gateways, with consistent multi-file architecture per gateway.
+> **50 PHP classes** across 11 gateways, with consistent multi-file architecture per gateway.
 
 ---
 
@@ -486,6 +491,59 @@ $gateway->payments()->status($paymentId);
 
 ---
 
+<a id="stripe"></a>
+
+### <img src="assets/logos/stripe.png" width="28"> Stripe
+
+| Property | Details |
+|----------|--------|
+| **Classes** | `StripeGateway`, `StripeCheckout`, `StripeCharge`, `StripeCustomer`, `StripeRefund`, `StripeWebhook` |
+| **Authentication** | Secret Key (Bearer Token) |
+| **Regions** | 46+ countries globally (USA, GBR, DEU, FRA, ARE, SAU, etc.) |
+| **Currencies** | 135+ currencies (USD, EUR, GBP, SAR, AED, KWD, BHD, etc.) |
+| **Features** | Checkout Sessions, Charges, PaymentIntents, Customers, Refunds |
+
+```php
+$gateway = PaymentGateway::stripe([
+    'secret_key'     => 'sk_test_xxx',
+    'webhook_secret' => 'whsec_xxx',   // Optional
+    'testMode'       => true,
+]);
+
+$response = $gateway->purchase(new PaymentRequest(
+    amount:      99.99,
+    currency:    'USD',
+    orderId:     'ORDER-001',
+    description: 'Pro Subscription',
+    callbackUrl: 'https://yoursite.com/webhook/stripe',
+    returnUrl:   'https://yoursite.com/success',
+    cancelUrl:   'https://yoursite.com/cancel',
+    customer:    new Customer(name: 'John', email: 'john@example.com'),
+));
+
+// Sub-modules — full API coverage
+$gateway->checkouts()->create($params);       // Create checkout session
+$gateway->checkouts()->retrieve($sessionId);  // Get session
+$gateway->checkouts()->expire($sessionId);    // Cancel session
+
+$gateway->charges()->create($params);         // Direct charge
+$gateway->charges()->capture($chargeId);      // Capture pre-auth
+$gateway->charges()->list(['limit' => 10]);   // List charges
+
+$gateway->customers()->create($data);         // Create customer
+$gateway->customers()->update($id, $data);    // Update
+$gateway->customers()->delete($id);           // Delete
+
+$gateway->refunds()->create(['payment_intent' => 'pi_xxx', 'amount' => 5000]);
+$gateway->refunds()->retrieve($refundId);
+
+// PaymentIntents (server-side)
+$gateway->createPaymentIntent(['amount' => 5000, 'currency' => 'usd']);
+$gateway->retrievePaymentIntent('pi_xxx');
+```
+
+---
+
 <a id="architecture"></a>
 
 ## 🏗️ Architecture
@@ -536,7 +594,8 @@ src/
     ├── Thawani/     (4 classes)    ← Gateway, Session, Customer, Webhook
     ├── Fatora/      (4 classes)    ← Gateway, Checkout, Recurring, Webhook
     ├── Payzaty/     (3 classes)    ← Gateway, Checkout, Webhook
-    └── Payzah/      (3 classes)    ← Gateway, Payment, Webhook
+    ├── Payzah/      (3 classes)    ← Gateway, Payment, Webhook
+    └── Stripe/      (6 classes)    ← Gateway, Checkout, Charge, Customer, Refund, Webhook
 ```
 
 ---
@@ -564,10 +623,11 @@ $gateway = PaymentGateway::thawani([...]);
 $gateway = PaymentGateway::fatora([...]);
 $gateway = PaymentGateway::payzaty([...]);
 $gateway = PaymentGateway::payzah([...]);
+$gateway = PaymentGateway::stripe([...]);
 
-// List all 10 available driver names
+// List all 11 available driver names
 PaymentGateway::getAvailableDrivers();
-// Returns: ['myfatoorah', 'paylink', 'edfapay', 'tap', 'clickpay', 'tamara', 'thawani', 'fatora', 'payzaty', 'payzah']
+// Returns: ['myfatoorah', 'paylink', 'edfapay', 'tap', 'clickpay', 'tamara', 'thawani', 'fatora', 'payzaty', 'payzah', 'stripe']
 ```
 
 ---
@@ -576,17 +636,17 @@ PaymentGateway::getAvailableDrivers();
 
 ## 🔌 Feature Matrix
 
-| Feature | <img src="assets/logos/myfatoorah.png" width="20"> | <img src="assets/logos/paylink.png" width="20"> | <img src="assets/logos/edfapay.png" width="20"> | <img src="assets/logos/tap.png" width="20"> | <img src="assets/logos/clickpay.png" width="20"> | <img src="assets/logos/tamara.png" width="20"> | <img src="assets/logos/thawani.png" width="20"> | <img src="assets/logos/fatorah.png" width="20"> | <img src="assets/logos/payzaty.png" width="20"> | <img src="assets/logos/payzah.png" width="20"> |
-|---------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| Purchase | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Payment Status | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Refund | ✅ | — | ✅ | ✅ | ✅ | ✅ | — | ✅ | — | — |
-| Recurring | — | — | ✅ | ✅ | ✅ | — | ✅ | ✅ | — | — |
-| Auth/Capture | ✅ | — | ✅ | ✅ | ✅ | ✅ | — | — | — | — |
-| Invoices | ✅ | ✅ | — | ✅ | — | — | — | — | — | — |
-| Customer CRUD | ✅ | — | — | ✅ | — | — | ✅ | — | — | — |
-| Tokenization | — | — | — | ✅ | ✅ | — | — | ✅ | — | — |
-| Webhook | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Feature | <img src="assets/logos/myfatoorah.png" width="20"> | <img src="assets/logos/paylink.png" width="20"> | <img src="assets/logos/edfapay.png" width="20"> | <img src="assets/logos/tap.png" width="20"> | <img src="assets/logos/clickpay.png" width="20"> | <img src="assets/logos/tamara.png" width="20"> | <img src="assets/logos/thawani.png" width="20"> | <img src="assets/logos/fatorah.png" width="20"> | <img src="assets/logos/payzaty.png" width="20"> | <img src="assets/logos/payzah.png" width="20"> | <img src="assets/logos/stripe.png" width="20"> |
+|---------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| Purchase | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Payment Status | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Refund | ✅ | — | ✅ | ✅ | ✅ | ✅ | — | ✅ | — | — | ✅ |
+| Recurring | — | — | ✅ | ✅ | ✅ | — | ✅ | ✅ | — | — | ✅ |
+| Auth/Capture | ✅ | — | ✅ | ✅ | ✅ | ✅ | — | — | — | — | ✅ |
+| Invoices | ✅ | ✅ | — | ✅ | — | — | — | — | — | — | — |
+| Customer CRUD | ✅ | — | — | ✅ | — | — | ✅ | — | — | — | ✅ |
+| Tokenization | — | — | — | ✅ | ✅ | — | — | ✅ | — | — | ✅ |
+| Webhook | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ---
 

@@ -16,6 +16,7 @@ use AzozzALFiras\PaymentGateway\Gateways\Thawani\ThawaniGateway;
 use AzozzALFiras\PaymentGateway\Gateways\Fatora\FatoraGateway;
 use AzozzALFiras\PaymentGateway\Gateways\Payzaty\PayzatyGateway;
 use AzozzALFiras\PaymentGateway\Gateways\Payzah\PayzahGateway;
+use AzozzALFiras\PaymentGateway\Gateways\Stripe\StripeGateway;
 
 /**
  * Payment Gateway Factory — the single entry point for creating gateway instances.
@@ -43,6 +44,7 @@ final class PaymentGateway
         'fatora'     => FatoraGateway::class,
         'payzaty'    => PayzatyGateway::class,
         'payzah'     => PayzahGateway::class,
+        'stripe'     => StripeGateway::class,
     ];
 
     /**
@@ -163,6 +165,15 @@ final class PaymentGateway
     {
         $config['driver'] = 'payzah';
         return new PayzahGateway(new GatewayConfig($config));
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public static function stripe(array $config = []): StripeGateway
+    {
+        $config['driver'] = 'stripe';
+        return new StripeGateway(new GatewayConfig($config));
     }
 
     /**

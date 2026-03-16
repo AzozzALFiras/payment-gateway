@@ -6,6 +6,7 @@ namespace AzozzALFiras\PaymentGateway\Gateways\EdfaPay;
 
 use AzozzALFiras\PaymentGateway\Config\GatewayConfig;
 use AzozzALFiras\PaymentGateway\DTOs\WebhookPayload;
+use AzozzALFiras\PaymentGateway\Security\SignatureVerifier;
 use AzozzALFiras\PaymentGateway\Support\Arr;
 
 /**
