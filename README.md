@@ -10,29 +10,31 @@ A **unified**, **extensible** PHP Composer package for integrating with **10 MEN
 
 ## 📑 Table of Contents
 
-- [Supported Gateways](#-supported-gateways)
-- [Installation](#-installation)
-- [Quick Start & Enums](#-quick-start)
-- [Gateway Reference](#-gateway-reference)
-  - [MyFatoorah](#-myfatoorah)
-  - [Paylink](#-paylink)
-  - [EdfaPay](#-edfapay)
-  - [Tap Payments](#-tap-payments)
-  - [ClickPay](#-clickpay)
-  - [Tamara (BNPL)](#-tamara-bnpl)
-  - [Thawani](#-thawani)
-  - [Fatora](#-fatora)
-  - [Payzaty](#-payzaty)
-  - [Payzah](#-payzah)
-- [Architecture](#-architecture)
-- [Factory Pattern](#-factory-pattern)
-- [Feature Matrix](#-feature-matrix)
-- [Security Architecture](#-security-architecture)
-- [Webhook Handling](#-webhook-handling)
-- [Database Integration Guide](#-database-integration-guide)
-- [Testing](#-testing)
+- [Supported Gateways](#supported-gateways)
+- [Installation](#installation)
+- [Quick Start & Enums](#quick-start)
+- [Gateway Reference](#gateway-reference)
+  - [MyFatoorah](#myfatoorah)
+  - [Paylink](#paylink)
+  - [EdfaPay](#edfapay)
+  - [Tap Payments](#tap-payments)
+  - [ClickPay](#clickpay)
+  - [Tamara (BNPL)](#tamara)
+  - [Thawani](#thawani)
+  - [Fatora](#fatora)
+  - [Payzaty](#payzaty)
+  - [Payzah](#payzah)
+- [Architecture](#architecture)
+- [Factory Pattern](#factory-pattern)
+- [Feature Matrix](#feature-matrix)
+- [Security Architecture](#security-architecture)
+- [Webhook Handling](#webhook-handling)
+- [Database Integration Guide](#database-integration-guide)
+- [Testing](#testing)
 
 ---
+
+<a id="supported-gateways"></a>
 
 ## ✨ Supported Gateways
 
@@ -70,6 +72,8 @@ A **unified**, **extensible** PHP Composer package for integrating with **10 MEN
 
 ---
 
+<a id="installation"></a>
+
 ## 📦 Installation
 
 ```bash
@@ -86,6 +90,8 @@ composer require azozzalfiras/payment-gateway
 | ext-mbstring | Required |
 
 ---
+
+<a id="quick-start"></a>
 
 ## 🚀 Quick Start
 
@@ -124,11 +130,15 @@ echo Currency::KWD->decimals();                    // 3
 
 ---
 
+<a id="gateway-reference"></a>
+
 ## 📖 Gateway Reference
 
 Each gateway section below provides: configuration, full code example, and available sub-modules.
 
 ---
+
+<a id="myfatoorah"></a>
 
 ### <img src="assets/logos/myfatoorah.png" width="28"> MyFatoorah
 
@@ -163,6 +173,8 @@ $gateway->customers()->getDetails($ref);
 
 ---
 
+<a id="paylink"></a>
+
 ### <img src="assets/logos/paylink.png" width="28"> Paylink
 
 | Property | Details |
@@ -193,6 +205,8 @@ $gateway->reconcile()->getSettlements($from, $to);
 
 ---
 
+<a id="edfapay"></a>
+
 ### <img src="assets/logos/edfapay.png" width="28"> EdfaPay
 
 | Property | Details |
@@ -222,6 +236,8 @@ $gateway->applePay()->sale([...]);
 ```
 
 ---
+
+<a id="tap-payments"></a>
 
 ### <img src="assets/logos/tap.png" width="28"> Tap Payments
 
@@ -270,6 +286,8 @@ $gateway->tokens()->create($cardData);  // Tokenize a card
 
 ---
 
+<a id="clickpay"></a>
+
 ### <img src="assets/logos/clickpay.png" width="28"> ClickPay
 
 | Property | Details |
@@ -297,6 +315,8 @@ $gateway->transactions()->query($ref);                    // Status query
 ```
 
 ---
+
+<a id="tamara"></a>
 
 ### <img src="assets/logos/tamara.png" width="28"> Tamara (BNPL)
 
@@ -332,6 +352,8 @@ $gateway->checkouts()->paymentOptions($orderData);
 
 ---
 
+<a id="thawani"></a>
+
 ### <img src="assets/logos/thawani.png" width="28"> Thawani
 
 | Property | Details |
@@ -364,6 +386,8 @@ $gateway->createPaymentIntent(5500, 'ref-001', $paymentMethodId, $returnUrl);
 ```
 
 ---
+
+<a id="fatora"></a>
 
 ### <img src="assets/logos/fatorah.png" width="28"> Fatora
 
@@ -401,6 +425,8 @@ $gateway->recurringPayments()->deactivateToken($token);
 
 ---
 
+<a id="payzaty"></a>
+
 ### <img src="assets/logos/payzaty.png" width="28"> Payzaty
 
 | Property | Details |
@@ -427,6 +453,8 @@ $gateway->checkouts()->status($paymentId);
 ```
 
 ---
+
+<a id="payzah"></a>
 
 ### <img src="assets/logos/payzah.png" width="28"> Payzah
 
@@ -457,6 +485,8 @@ $gateway->payments()->status($paymentId);
 ```
 
 ---
+
+<a id="architecture"></a>
 
 ## 🏗️ Architecture
 
@@ -511,6 +541,8 @@ src/
 
 ---
 
+<a id="factory-pattern"></a>
+
 ## 🏭 Factory Pattern
 
 The `PaymentGateway` class provides two ways to instantiate any gateway:
@@ -540,6 +572,8 @@ PaymentGateway::getAvailableDrivers();
 
 ---
 
+<a id="feature-matrix"></a>
+
 ## 🔌 Feature Matrix
 
 | Feature | <img src="assets/logos/myfatoorah.png" width="20"> | <img src="assets/logos/paylink.png" width="20"> | <img src="assets/logos/edfapay.png" width="20"> | <img src="assets/logos/tap.png" width="20"> | <img src="assets/logos/clickpay.png" width="20"> | <img src="assets/logos/tamara.png" width="20"> | <img src="assets/logos/thawani.png" width="20"> | <img src="assets/logos/fatorah.png" width="20"> | <img src="assets/logos/payzaty.png" width="20"> | <img src="assets/logos/payzah.png" width="20"> |
@@ -555,6 +589,8 @@ PaymentGateway::getAvailableDrivers();
 | Webhook | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ---
+
+<a id="security-architecture"></a>
 
 ## 🔒 Security Architecture
 
@@ -607,6 +643,8 @@ PayloadSanitizer::metadata($array);        // Recursive XSS clean
 
 ---
 
+<a id="webhook-handling"></a>
+
 ## 🔐 Webhook Handling
 
 All 10 gateways support webhook processing through a unified interface:
@@ -638,6 +676,8 @@ echo "Final: " . ($status->isFinal() ? 'yes' : 'no') . "\n";
 
 ---
 
+<a id="database-integration-guide"></a>
+
 ## 🗄️ Database Integration Guide
 
 > The full step-by-step guide is available in [docs/DATABASE.md](docs/DATABASE.md) — includes SQL schema, PaymentTransaction Model with enum casting, PaymentService class, and WebhookController.
@@ -651,6 +691,8 @@ echo "Final: " . ($status->isFinal() ? 'yes' : 'no') . "\n";
 - **Full usage examples** — payment creation → redirect → webhook → status check → refund
 
 ---
+
+<a id="testing"></a>
 
 ## 🧪 Testing
 
