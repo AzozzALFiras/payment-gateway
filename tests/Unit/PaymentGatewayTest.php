@@ -85,7 +85,9 @@ class PaymentGatewayTest extends TestCase
         $this->assertContains('payzaty', $drivers);
         $this->assertContains('payzah', $drivers);
         $this->assertContains('stripe', $drivers);
-        $this->assertCount(11, $drivers);
+        $this->assertContains('paypal', $drivers);
+        $this->assertContains('neonpay', $drivers);
+        $this->assertCount(13, $drivers);
     }
 
     public function testCaseInsensitiveDriverName(): void

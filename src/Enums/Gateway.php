@@ -26,6 +26,8 @@ enum Gateway: string
     case PAYZATY    = 'payzaty';
     case PAYZAH     = 'payzah';
     case STRIPE     = 'stripe';
+    case PAYPAL     = 'paypal';
+    case NEONPAY    = 'neonpay';
 
     /**
      * Human-readable gateway name.
@@ -44,6 +46,8 @@ enum Gateway: string
             self::PAYZATY    => 'Payzaty',
             self::PAYZAH     => 'Payzah',
             self::STRIPE     => 'Stripe',
+            self::PAYPAL     => 'PayPal',
+            self::NEONPAY    => 'NeonPay',
         };
     }
 
@@ -66,6 +70,8 @@ enum Gateway: string
             self::PAYZATY    => ['SAU'],
             self::PAYZAH     => ['KWT'],
             self::STRIPE     => ['USA', 'GBR', 'DEU', 'FRA', 'CAN', 'AUS', 'JPN', 'SGP', 'ARE', 'SAU', 'BHR', 'QAT', 'KWT', 'OMN', 'EGY', 'JOR'],
+            self::PAYPAL     => ['USA', 'GBR', 'DEU', 'FRA', 'CAN', 'AUS', 'JPN', 'SGP', 'ARE', 'SAU', 'BHR', 'QAT', 'KWT', 'OMN', 'EGY', 'JOR', 'IND', 'BRA', 'MEX'],
+            self::NEONPAY    => ['SAU', 'ARE', 'BHR', 'QAT', 'KWT', 'OMN', 'EGY', 'JOR'],
         };
     }
 
@@ -88,6 +94,8 @@ enum Gateway: string
             self::PAYZATY    => ['SAR'],
             self::PAYZAH     => ['KWD'],
             self::STRIPE     => ['USD', 'EUR', 'GBP', 'SAR', 'AED', 'KWD', 'BHD', 'QAR', 'OMR', 'EGP', 'JOD'],
+            self::PAYPAL     => ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'SAR', 'AED', 'KWD', 'BHD', 'QAR', 'OMR', 'EGP', 'JOD'],
+            self::NEONPAY    => ['SAR', 'AED', 'BHD', 'QAR', 'KWD', 'OMR', 'EGP', 'JOD'],
         };
     }
 
@@ -98,7 +106,7 @@ enum Gateway: string
     {
         return match ($this) {
             self::MYFATOORAH, self::EDFAPAY, self::TAP, self::CLICKPAY,
-            self::TAMARA, self::FATORA, self::STRIPE => true,
+            self::TAMARA, self::FATORA, self::STRIPE, self::PAYPAL, self::NEONPAY => true,
             default => false,
         };
     }

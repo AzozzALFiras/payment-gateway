@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Composer](https://img.shields.io/badge/Composer-azozzalfiras%2Fpayment--gateway-orange.svg)](https://packagist.org/packages/azozzalfiras/payment-gateway)
 
-A **unified**, **extensible** PHP Composer package for integrating with **10 MENA-region payment gateways**. Built with clean architecture, full API coverage, zero external dependencies, and enterprise-grade security.
+A **unified**, **extensible** PHP Composer package for integrating with **13 payment gateways** (MENA + Global). Built with clean architecture, full API coverage, zero external dependencies, and enterprise-grade security.
 
 ---
 
@@ -25,6 +25,8 @@ A **unified**, **extensible** PHP Composer package for integrating with **10 MEN
   - [Payzaty](#payzaty)
   - [Payzah](#payzah)
   - [Stripe](#stripe)
+  - [PayPal](#paypal)
+  - [NeonPay](#neonpay)
 - [Architecture](#architecture)
 - [Factory Pattern](#factory-pattern)
 - [Feature Matrix](#feature-matrix)
@@ -55,7 +57,9 @@ A **unified**, **extensible** PHP Composer package for integrating with **10 MEN
     <td align="center"><img src="assets/logos/payzah.png" width="80"><br><b>Payzah</b></td>
   </tr>
   <tr>
-    <td align="center" colspan="5"><img src="assets/logos/stripe.png" width="80"><br><b>Stripe</b></td>
+    <td align="center"><img src="assets/logos/stripe.png" width="80"><br><b>Stripe</b></td>
+    <td align="center"><img src="assets/logos/paypal.png" width="80"><br><b>PayPal</b></td>
+    <td align="center" colspan="3"><img src="assets/logos/neonpay.png" width="80"><br><b>NeonPay</b></td>
   </tr>
 </table>
 
@@ -72,8 +76,10 @@ A **unified**, **extensible** PHP Composer package for integrating with **10 MEN
 | **Payzaty** | 3 | Secure Checkout, Mada/VISA/MC/Apple Pay/STC Pay | Account No + Secret Key | 🇸🇦 SAU |
 | **Payzah** | 3 | Hosted Checkout, K-Net/VISA/MC/Apple Pay/Amex, Multi-vendor | Private Key | 🇰🇼 KWT |
 | **Stripe** | 6 | Checkout Sessions, Charges, Customers, Refunds, PaymentIntents, Webhooks | Secret Key (Bearer) | 🌍 46+ countries |
+| **PayPal** | 6 | Orders, Captures, Authorizations, Refunds, OAuth 2.0, Webhooks | Client ID + Secret (OAuth 2.0) | 🌍 200+ countries |
+| **NeonPay** | 3 | Payments, Refunds, Webhooks (EBIK Key Auth) | EBIK Key (Header) | 🇸🇦 SAU · 🇦🇪 ARE · 🇧🇭 BHR · 🇶🇦 QAT · 🇰🇼 KWT · 🇴🇲 OMN · 🇪🇬 EGY · 🇯🇴 JOR |
 
-> **50 PHP classes** across 11 gateways, with consistent multi-file architecture per gateway.
+> **59 PHP classes** across 13 gateways, with consistent multi-file architecture per gateway.
 
 ---
 
@@ -544,15 +550,109 @@ $gateway->retrievePaymentIntent('pi_xxx');
 
 ---
 
+<a id="paypal"></a>
+
+### <img src="assets/logos/paypal.png" width="28"> PayPal
+
+| Property | Details |
+|----------|--------|
+| **Classes** | `PayPalGateway`, `PayPalAuth`, `PayPalOrder`, `PayPalPayment`, `PayPalRefund`, `PayPalWebhook` |
+| **Authentication** | Client ID + Client Secret (OAuth 2.0 Bearer Token) |
+| **Regions** | 200+ countries globally (USA, GBR, DEU, FRA, SAU, ARE, etc.) |
+| **Currencies** | 25+ currencies (USD, EUR, GBP, SAR, AED, KWD, BHD, etc.) |
+| **Features** | Orders, Captures, Authorizations, Refunds, Webhooks |
+
+```php
+$gateway = PaymentGateway::paypal([
+    'client_id'      => 'YOUR_CLIENT_ID',
+    'client_secret'  => 'YOUR_CLIENT_SECRET',
+    'webhook_id'     => 'YOUR_WEBHOOK_ID',   // Optional: for webhook verification
+    'testMode'       => true,
+]);
+
+$response = $gateway->purchase(new PaymentRequest(
+    amount:      99.99,
+    currency:    'USD',
+    orderId:     'ORDER-001',
+    description: 'Pro Subscription',
+    callbackUrl: 'https://yoursite.com/webhook/paypal',
+    returnUrl:   'https://yoursite.com/success',
+    cancelUrl:   'https://yoursite.com/cancel',
+    customer:    new Customer(name: 'John', email: 'john@example.com'),
+));
+
+// After customer approves on PayPal, capture the order
+$capture = $gateway->captureOrder($response->transactionId);
+
+// Sub-modules — full API coverage
+$gateway->orders()->create($params);           // Create order
+$gateway->orders()->retrieve($orderId);        // Get order
+$gateway->orders()->capture($orderId);         // Capture approved order
+$gateway->orders()->authorize($orderId);       // Authorize order
+
+$gateway->payments()->showCapturedPayment($captureId);     // Show capture
+$gateway->payments()->captureAuthorization($authId);       // Capture auth
+$gateway->payments()->voidAuthorization($authId);          // Void auth
+
+$gateway->refunds()->create($captureId, ['amount' => ['value' => '10.00', 'currency_code' => 'USD']]);
+$gateway->refunds()->retrieve($refundId);
+```
+
+---
+
+<a id="neonpay"></a>
+
+### <img src="assets/logos/neonpay.png" width="28"> NeonPay
+
+| Property | Details |
+|----------|--------|
+| **Classes** | `NeonPayGateway`, `NeonPayPayment`, `NeonPayWebhook` |
+| **Authentication** | EBIK Key (X-EBIK-KEY header) |
+| **Regions** | Saudi Arabia, UAE, Bahrain, Qatar, Kuwait, Oman, Egypt, Jordan |
+| **Currencies** | SAR, AED, BHD, QAR, KWD, OMR, EGP, JOD |
+| **Features** | Payments, Refunds, Webhooks, Health Check, Key Validation |
+
+```php
+$gateway = PaymentGateway::neonpay([
+    'ebik_key'       => 'YOUR_64_CHAR_EBIK_KEY',
+    'webhook_secret' => 'YOUR_WEBHOOK_SECRET',   // Optional
+    'testMode'       => true,
+]);
+
+$response = $gateway->purchase(new PaymentRequest(
+    amount:      150.00,
+    currency:    'SAR',
+    orderId:     'ORDER-001',
+    description: 'Premium Subscription',
+    callbackUrl: 'https://yoursite.com/webhook/neonpay',
+    returnUrl:   'https://yoursite.com/success',
+    cancelUrl:   'https://yoursite.com/failed',
+    metadata:    ['product_id' => 'PROD-001', 'user_id' => '42'],
+));
+
+// Open $response->paymentUrl in browser for customer to pay
+
+// Sub-modules
+$gateway->payments()->retrieve($paymentToken);     // Get payment status
+$gateway->payments()->list(['status' => 'completed', 'per_page' => 15]);
+$gateway->payments()->refund($paymentToken);       // Refund payment
+
+// Utility
+$gateway->healthCheck();     // API health check
+$gateway->validateKey();     // Validate EBIK key (GET /me)
+```
+
+---
+
 <a id="architecture"></a>
 
 ## 🏗️ Architecture
 
 ```
 src/
-├── PaymentGateway.php              ← Factory (10 drivers)
+├── PaymentGateway.php              ← Factory (13 drivers)
 ├── Enums/
-│   ├── Gateway.php                 ← Gateway enum (10 drivers + metadata)
+│   ├── Gateway.php                 ← Gateway enum (13 drivers + metadata)
 │   ├── PaymentStatus.php           ← Unified status (12 states + normalize())
 │   ├── TransactionType.php         ← Transaction types (8 types)
 │   └── Currency.php                ← MENA currencies (11 + baisa/fils conversion)
@@ -595,7 +695,9 @@ src/
     ├── Fatora/      (4 classes)    ← Gateway, Checkout, Recurring, Webhook
     ├── Payzaty/     (3 classes)    ← Gateway, Checkout, Webhook
     ├── Payzah/      (3 classes)    ← Gateway, Payment, Webhook
-    └── Stripe/      (6 classes)    ← Gateway, Checkout, Charge, Customer, Refund, Webhook
+    ├── Stripe/      (6 classes)    ← Gateway, Checkout, Charge, Customer, Refund, Webhook
+    ├── PayPal/      (6 classes)    ← Gateway, Auth, Order, Payment, Refund, Webhook
+    └── NeonPay/     (3 classes)    ← Gateway, Payment, Webhook
 ```
 
 ---
@@ -624,10 +726,12 @@ $gateway = PaymentGateway::fatora([...]);
 $gateway = PaymentGateway::payzaty([...]);
 $gateway = PaymentGateway::payzah([...]);
 $gateway = PaymentGateway::stripe([...]);
+$gateway = PaymentGateway::paypal([...]);
+$gateway = PaymentGateway::neonpay([...]);
 
-// List all 11 available driver names
+// List all 13 available driver names
 PaymentGateway::getAvailableDrivers();
-// Returns: ['myfatoorah', 'paylink', 'edfapay', 'tap', 'clickpay', 'tamara', 'thawani', 'fatora', 'payzaty', 'payzah', 'stripe']
+// Returns: ['myfatoorah', 'paylink', 'edfapay', 'tap', 'clickpay', 'tamara', 'thawani', 'fatora', 'payzaty', 'payzah', 'stripe', 'paypal', 'neonpay']
 ```
 
 ---
@@ -636,17 +740,17 @@ PaymentGateway::getAvailableDrivers();
 
 ## 🔌 Feature Matrix
 
-| Feature | <img src="assets/logos/myfatoorah.png" width="20"> | <img src="assets/logos/paylink.png" width="20"> | <img src="assets/logos/edfapay.png" width="20"> | <img src="assets/logos/tap.png" width="20"> | <img src="assets/logos/clickpay.png" width="20"> | <img src="assets/logos/tamara.png" width="20"> | <img src="assets/logos/thawani.png" width="20"> | <img src="assets/logos/fatorah.png" width="20"> | <img src="assets/logos/payzaty.png" width="20"> | <img src="assets/logos/payzah.png" width="20"> | <img src="assets/logos/stripe.png" width="20"> |
-|---------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| Purchase | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Payment Status | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Refund | ✅ | — | ✅ | ✅ | ✅ | ✅ | — | ✅ | — | — | ✅ |
-| Recurring | — | — | ✅ | ✅ | ✅ | — | ✅ | ✅ | — | — | ✅ |
-| Auth/Capture | ✅ | — | ✅ | ✅ | ✅ | ✅ | — | — | — | — | ✅ |
-| Invoices | ✅ | ✅ | — | ✅ | — | — | — | — | — | — | — |
-| Customer CRUD | ✅ | — | — | ✅ | — | — | ✅ | — | — | — | ✅ |
-| Tokenization | — | — | — | ✅ | ✅ | — | — | ✅ | — | — | ✅ |
-| Webhook | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Feature | <img src="assets/logos/myfatoorah.png" width="20"> | <img src="assets/logos/paylink.png" width="20"> | <img src="assets/logos/edfapay.png" width="20"> | <img src="assets/logos/tap.png" width="20"> | <img src="assets/logos/clickpay.png" width="20"> | <img src="assets/logos/tamara.png" width="20"> | <img src="assets/logos/thawani.png" width="20"> | <img src="assets/logos/fatorah.png" width="20"> | <img src="assets/logos/payzaty.png" width="20"> | <img src="assets/logos/payzah.png" width="20"> | <img src="assets/logos/stripe.png" width="20"> | <img src="assets/logos/paypal.png" width="20"> | <img src="assets/logos/neonpay.png" width="20"> |
+|---------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| Purchase | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Payment Status | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Refund | ✅ | — | ✅ | ✅ | ✅ | ✅ | — | ✅ | — | — | ✅ | ✅ | ✅ |
+| Recurring | — | — | ✅ | ✅ | ✅ | — | ✅ | ✅ | — | — | ✅ | — | — |
+| Auth/Capture | ✅ | — | ✅ | ✅ | ✅ | ✅ | — | — | — | — | ✅ | ✅ | — |
+| Invoices | ✅ | ✅ | — | ✅ | — | — | — | — | — | — | — | — | — |
+| Customer CRUD | ✅ | — | — | ✅ | — | — | ✅ | — | — | — | ✅ | — | — |
+| Tokenization | — | — | — | ✅ | ✅ | — | — | ✅ | — | — | ✅ | — | — |
+| Webhook | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -707,7 +811,7 @@ PayloadSanitizer::metadata($array);        // Recursive XSS clean
 
 ## 🔐 Webhook Handling
 
-All 10 gateways support webhook processing through a unified interface:
+All 13 gateways support webhook processing through a unified interface:
 
 ```php
 // In your webhook endpoint controller (e.g. POST /webhook/tap)
@@ -771,7 +875,7 @@ find src/ -name '*.php' -exec php -l {} \;
 ```
 
 **Current test results:**
-- ✅ PHP Lint: 72/72 files — zero syntax errors
+- ✅ PHP Lint: 81/81 files — zero syntax errors
 - ✅ PHPUnit: 16 tests, 36 assertions — all passing
 - ✅ PHPStan Level 5: 0 errors
 

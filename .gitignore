@@ -8,3 +8,14 @@ phpstan.neon
 *.swp
 *.swo
 .DS_Store
+.claude/
+.claude_cache/
+.claude_logs/
+.claude_sessions/
+.claude_temp/
+.claude_config/
+.claude_data/
+.claude_plugins/
+.claude_extensions/
+.claude_backups/
+.claude_debug/
