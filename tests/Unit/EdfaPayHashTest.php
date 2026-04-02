@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace AzozzALFiras\PaymentGateway\Tests\Unit;
 
-use AzozzALFiras\PaymentGateway\Gateways\EdfaPay\EdfaPayHash;
+use AzozzALFiras\PaymentGateway\Gateways\MiddleEast\EdfaPay\EdfaPayHash;
 use PHPUnit\Framework\TestCase;
 
 class EdfaPayHashTest extends TestCase

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AzozzALFiras\PaymentGateway\Gateways\MyFatoorah;
+namespace AzozzALFiras\PaymentGateway\Gateways\MiddleEast\MyFatoorah;
 
 use AzozzALFiras\PaymentGateway\Http\HttpClient;
 use AzozzALFiras\PaymentGateway\Support\Arr;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AzozzALFiras\PaymentGateway\Gateways\ClickPay;
+namespace AzozzALFiras\PaymentGateway\Gateways\MiddleEast\ClickPay;
 
 use AzozzALFiras\PaymentGateway\DTOs\PaymentResponse;
 use AzozzALFiras\PaymentGateway\Http\HttpClient;

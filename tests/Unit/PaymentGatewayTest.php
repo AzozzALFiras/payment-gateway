@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace AzozzALFiras\PaymentGateway\Tests\Unit;
 
 use AzozzALFiras\PaymentGateway\PaymentGateway;
-use AzozzALFiras\PaymentGateway\Gateways\MyFatoorah\MyFatoorahGateway;
-use AzozzALFiras\PaymentGateway\Gateways\Paylink\PaylinkGateway;
-use AzozzALFiras\PaymentGateway\Gateways\EdfaPay\EdfaPayGateway;
+use AzozzALFiras\PaymentGateway\Gateways\MiddleEast\MyFatoorah\MyFatoorahGateway;
+use AzozzALFiras\PaymentGateway\Gateways\MiddleEast\Paylink\PaylinkGateway;
+use AzozzALFiras\PaymentGateway\Gateways\MiddleEast\EdfaPay\EdfaPayGateway;
 use PHPUnit\Framework\TestCase;
 
 class PaymentGatewayTest extends TestCase
@@ -87,7 +87,12 @@ class PaymentGatewayTest extends TestCase
         $this->assertContains('stripe', $drivers);
         $this->assertContains('paypal', $drivers);
         $this->assertContains('neonpay', $drivers);
-        $this->assertCount(13, $drivers);
+        $this->assertContains('asiapay', $drivers);
+        $this->assertContains('zaincash', $drivers);
+        $this->assertContains('mollie', $drivers);
+        $this->assertContains('redsys', $drivers);
+        $this->assertContains('gocardless', $drivers);
+        $this->assertCount(18, $drivers);
     }
 
     public function testCaseInsensitiveDriverName(): void

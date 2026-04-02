@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AzozzALFiras\PaymentGateway\Gateways\Tamara;
+namespace AzozzALFiras\PaymentGateway\Gateways\MiddleEast\Tamara;
 
 use AzozzALFiras\PaymentGateway\Http\HttpClient;
 

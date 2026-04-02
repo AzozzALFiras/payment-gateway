@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AzozzALFiras\PaymentGateway\Gateways\Paylink;
+namespace AzozzALFiras\PaymentGateway\Gateways\MiddleEast\Paylink;
 
 use AzozzALFiras\PaymentGateway\Exceptions\AuthenticationException;
 use AzozzALFiras\PaymentGateway\Http\HttpClient;

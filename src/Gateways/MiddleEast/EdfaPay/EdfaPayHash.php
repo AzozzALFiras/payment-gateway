@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AzozzALFiras\PaymentGateway\Gateways\EdfaPay;
+namespace AzozzALFiras\PaymentGateway\Gateways\MiddleEast\EdfaPay;
 
 /**
  * EdfaPay Hash Generation Utility.

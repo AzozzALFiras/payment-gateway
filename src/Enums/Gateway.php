@@ -28,6 +28,11 @@ enum Gateway: string
     case STRIPE     = 'stripe';
     case PAYPAL     = 'paypal';
     case NEONPAY    = 'neonpay';
+    case ASIAPAY    = 'asiapay';
+    case ZAINCASH   = 'zaincash';
+    case MOLLIE     = 'mollie';
+    case REDSYS     = 'redsys';
+    case GOCARDLESS = 'gocardless';
 
     /**
      * Human-readable gateway name.
@@ -48,6 +53,11 @@ enum Gateway: string
             self::STRIPE     => 'Stripe',
             self::PAYPAL     => 'PayPal',
             self::NEONPAY    => 'NeonPay',
+            self::ASIAPAY    => 'AsiaPay',
+            self::ZAINCASH   => 'ZainCash',
+            self::MOLLIE     => 'Mollie',
+            self::REDSYS     => 'Redsys',
+            self::GOCARDLESS => 'GoCardless',
         };
     }
 
@@ -72,6 +82,11 @@ enum Gateway: string
             self::STRIPE     => ['USA', 'GBR', 'DEU', 'FRA', 'CAN', 'AUS', 'JPN', 'SGP', 'ARE', 'SAU', 'BHR', 'QAT', 'KWT', 'OMN', 'EGY', 'JOR'],
             self::PAYPAL     => ['USA', 'GBR', 'DEU', 'FRA', 'CAN', 'AUS', 'JPN', 'SGP', 'ARE', 'SAU', 'BHR', 'QAT', 'KWT', 'OMN', 'EGY', 'JOR', 'IND', 'BRA', 'MEX'],
             self::NEONPAY    => ['SAU', 'ARE', 'BHR', 'QAT', 'KWT', 'OMN', 'EGY', 'JOR'],
+            self::ASIAPAY    => ['IRQ'],
+            self::ZAINCASH   => ['IRQ'],
+            self::MOLLIE     => ['NLD', 'DEU', 'FRA', 'BEL', 'AUT', 'CHE', 'GBR', 'ESP', 'PRT', 'ITA', 'FIN', 'SWE', 'DNK', 'NOR', 'POL', 'CZE'],
+            self::REDSYS     => ['ESP', 'PRT', 'AND'],
+            self::GOCARDLESS => ['GBR', 'DEU', 'FRA', 'ESP', 'NLD', 'BEL', 'AUT', 'IRL', 'ITA', 'PRT', 'FIN', 'SWE', 'DNK', 'AUS', 'NZL', 'CAN', 'USA'],
         };
     }
 
@@ -96,6 +111,11 @@ enum Gateway: string
             self::STRIPE     => ['USD', 'EUR', 'GBP', 'SAR', 'AED', 'KWD', 'BHD', 'QAR', 'OMR', 'EGP', 'JOD'],
             self::PAYPAL     => ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'SAR', 'AED', 'KWD', 'BHD', 'QAR', 'OMR', 'EGP', 'JOD'],
             self::NEONPAY    => ['SAR', 'AED', 'BHD', 'QAR', 'KWD', 'OMR', 'EGP', 'JOD'],
+            self::ASIAPAY    => ['IQD'],
+            self::ZAINCASH   => ['IQD'],
+            self::MOLLIE     => ['EUR', 'GBP', 'USD', 'CHF', 'SEK', 'NOK', 'DKK', 'PLN', 'CZK', 'HUF', 'RON', 'BGN', 'ISK'],
+            self::REDSYS     => ['EUR'],
+            self::GOCARDLESS => ['GBP', 'EUR', 'SEK', 'DKK', 'AUD', 'NZD', 'CAD', 'USD'],
         };
     }
 
@@ -106,7 +126,8 @@ enum Gateway: string
     {
         return match ($this) {
             self::MYFATOORAH, self::EDFAPAY, self::TAP, self::CLICKPAY,
-            self::TAMARA, self::FATORA, self::STRIPE, self::PAYPAL, self::NEONPAY => true,
+            self::TAMARA, self::FATORA, self::STRIPE, self::PAYPAL, self::NEONPAY,
+            self::ASIAPAY, self::MOLLIE, self::REDSYS, self::GOCARDLESS => true,
             default => false,
         };
     }
@@ -146,6 +167,21 @@ enum Gateway: string
         }
 
         throw new \ValueError("'{$name}' is not a valid gateway name");
+    }
+
+    /**
+     * Regional classification.
+     */
+    public function region(): string
+    {
+        return match ($this) {
+            self::STRIPE, self::PAYPAL => 'International',
+            self::MYFATOORAH, self::PAYLINK, self::EDFAPAY, self::TAP,
+            self::CLICKPAY, self::TAMARA, self::THAWANI, self::FATORA,
+            self::PAYZATY, self::PAYZAH, self::NEONPAY,
+            self::ASIAPAY, self::ZAINCASH => 'MiddleEast',
+            self::MOLLIE, self::REDSYS, self::GOCARDLESS => 'Europe',
+        };
     }
 
     /**

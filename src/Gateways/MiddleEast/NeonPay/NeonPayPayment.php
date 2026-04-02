@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AzozzALFiras\PaymentGateway\Gateways\NeonPay;
+namespace AzozzALFiras\PaymentGateway\Gateways\MiddleEast\NeonPay;
 
 use AzozzALFiras\PaymentGateway\Http\HttpClient;
 

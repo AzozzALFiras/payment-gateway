@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AzozzALFiras\PaymentGateway\Gateways\Tap;
+namespace AzozzALFiras\PaymentGateway\Gateways\MiddleEast\Tap;
 
 use AzozzALFiras\PaymentGateway\DTOs\PaymentRequest;
 use AzozzALFiras\PaymentGateway\DTOs\PaymentResponse;

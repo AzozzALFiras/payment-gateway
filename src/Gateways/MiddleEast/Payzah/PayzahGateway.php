@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AzozzALFiras\PaymentGateway\Gateways\Payzah;
+namespace AzozzALFiras\PaymentGateway\Gateways\MiddleEast\Payzah;
 
 use AzozzALFiras\PaymentGateway\Config\GatewayConfig;
 use AzozzALFiras\PaymentGateway\Contracts\GatewayInterface;

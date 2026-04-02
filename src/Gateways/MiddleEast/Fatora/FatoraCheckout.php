@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AzozzALFiras\PaymentGateway\Gateways\Fatora;
+namespace AzozzALFiras\PaymentGateway\Gateways\MiddleEast\Fatora;
 
 use AzozzALFiras\PaymentGateway\DTOs\PaymentResponse;
 use AzozzALFiras\PaymentGateway\Http\HttpClient;

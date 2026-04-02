@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AzozzALFiras\PaymentGateway\Gateways\Thawani;
+namespace AzozzALFiras\PaymentGateway\Gateways\MiddleEast\Thawani;
 
 use AzozzALFiras\PaymentGateway\Config\GatewayConfig;
 use AzozzALFiras\PaymentGateway\Contracts\GatewayInterface;

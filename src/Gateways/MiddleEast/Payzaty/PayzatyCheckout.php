@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AzozzALFiras\PaymentGateway\Gateways\Payzaty;
+namespace AzozzALFiras\PaymentGateway\Gateways\MiddleEast\Payzaty;
 
 use AzozzALFiras\PaymentGateway\Http\HttpClient;
 

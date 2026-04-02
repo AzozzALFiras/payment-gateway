@@ -6,19 +6,27 @@ namespace AzozzALFiras\PaymentGateway;
 
 use AzozzALFiras\PaymentGateway\Config\GatewayConfig;
 use AzozzALFiras\PaymentGateway\Contracts\GatewayInterface;
-use AzozzALFiras\PaymentGateway\Gateways\MyFatoorah\MyFatoorahGateway;
-use AzozzALFiras\PaymentGateway\Gateways\Paylink\PaylinkGateway;
-use AzozzALFiras\PaymentGateway\Gateways\EdfaPay\EdfaPayGateway;
-use AzozzALFiras\PaymentGateway\Gateways\Tap\TapGateway;
-use AzozzALFiras\PaymentGateway\Gateways\ClickPay\ClickPayGateway;
-use AzozzALFiras\PaymentGateway\Gateways\Tamara\TamaraGateway;
-use AzozzALFiras\PaymentGateway\Gateways\Thawani\ThawaniGateway;
-use AzozzALFiras\PaymentGateway\Gateways\Fatora\FatoraGateway;
-use AzozzALFiras\PaymentGateway\Gateways\Payzaty\PayzatyGateway;
-use AzozzALFiras\PaymentGateway\Gateways\Payzah\PayzahGateway;
-use AzozzALFiras\PaymentGateway\Gateways\Stripe\StripeGateway;
-use AzozzALFiras\PaymentGateway\Gateways\PayPal\PayPalGateway;
-use AzozzALFiras\PaymentGateway\Gateways\NeonPay\NeonPayGateway;
+// International
+use AzozzALFiras\PaymentGateway\Gateways\International\Stripe\StripeGateway;
+use AzozzALFiras\PaymentGateway\Gateways\International\PayPal\PayPalGateway;
+// Middle East
+use AzozzALFiras\PaymentGateway\Gateways\MiddleEast\MyFatoorah\MyFatoorahGateway;
+use AzozzALFiras\PaymentGateway\Gateways\MiddleEast\Paylink\PaylinkGateway;
+use AzozzALFiras\PaymentGateway\Gateways\MiddleEast\EdfaPay\EdfaPayGateway;
+use AzozzALFiras\PaymentGateway\Gateways\MiddleEast\Tap\TapGateway;
+use AzozzALFiras\PaymentGateway\Gateways\MiddleEast\ClickPay\ClickPayGateway;
+use AzozzALFiras\PaymentGateway\Gateways\MiddleEast\Tamara\TamaraGateway;
+use AzozzALFiras\PaymentGateway\Gateways\MiddleEast\Thawani\ThawaniGateway;
+use AzozzALFiras\PaymentGateway\Gateways\MiddleEast\Fatora\FatoraGateway;
+use AzozzALFiras\PaymentGateway\Gateways\MiddleEast\Payzaty\PayzatyGateway;
+use AzozzALFiras\PaymentGateway\Gateways\MiddleEast\Payzah\PayzahGateway;
+use AzozzALFiras\PaymentGateway\Gateways\MiddleEast\NeonPay\NeonPayGateway;
+use AzozzALFiras\PaymentGateway\Gateways\MiddleEast\AsiaPay\AsiaPayGateway;
+use AzozzALFiras\PaymentGateway\Gateways\MiddleEast\ZainCash\ZainCashGateway;
+// Europe
+use AzozzALFiras\PaymentGateway\Gateways\Europe\Mollie\MollieGateway;
+use AzozzALFiras\PaymentGateway\Gateways\Europe\Redsys\RedsysGateway;
+use AzozzALFiras\PaymentGateway\Gateways\Europe\GoCardless\GoCardlessGateway;
 
 /**
  * Payment Gateway Factory — the single entry point for creating gateway instances.
@@ -49,6 +57,11 @@ final class PaymentGateway
         'stripe'     => StripeGateway::class,
         'paypal'     => PayPalGateway::class,
         'neonpay'    => NeonPayGateway::class,
+        'asiapay'    => AsiaPayGateway::class,
+        'zaincash'   => ZainCashGateway::class,
+        'mollie'     => MollieGateway::class,
+        'redsys'     => RedsysGateway::class,
+        'gocardless' => GoCardlessGateway::class,
     ];
 
     /**
@@ -196,6 +209,51 @@ final class PaymentGateway
     {
         $config['driver'] = 'neonpay';
         return new NeonPayGateway(new GatewayConfig($config));
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public static function asiapay(array $config = []): AsiaPayGateway
+    {
+        $config['driver'] = 'asiapay';
+        return new AsiaPayGateway(new GatewayConfig($config));
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public static function zaincash(array $config = []): ZainCashGateway
+    {
+        $config['driver'] = 'zaincash';
+        return new ZainCashGateway(new GatewayConfig($config));
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public static function mollie(array $config = []): MollieGateway
+    {
+        $config['driver'] = 'mollie';
+        return new MollieGateway(new GatewayConfig($config));
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public static function redsys(array $config = []): RedsysGateway
+    {
+        $config['driver'] = 'redsys';
+        return new RedsysGateway(new GatewayConfig($config));
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public static function gocardless(array $config = []): GoCardlessGateway
+    {
+        $config['driver'] = 'gocardless';
+        return new GoCardlessGateway(new GatewayConfig($config));
     }
 
     /**

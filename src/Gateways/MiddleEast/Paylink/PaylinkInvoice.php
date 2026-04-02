@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AzozzALFiras\PaymentGateway\Gateways\Paylink;
+namespace AzozzALFiras\PaymentGateway\Gateways\MiddleEast\Paylink;
 
 use AzozzALFiras\PaymentGateway\DTOs\InvoiceRequest;
 use AzozzALFiras\PaymentGateway\DTOs\InvoiceResponse;
