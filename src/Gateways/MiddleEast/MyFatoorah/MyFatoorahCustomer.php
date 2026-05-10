@@ -8,9 +8,11 @@ use AzozzALFiras\PaymentGateway\Http\HttpClient;
 use AzozzALFiras\PaymentGateway\Support\Arr;
 
 /**
- * MyFatoorah Customer Operations (V3 API).
+ * MyFatoorah Customer Operations.
  *
- * @link https://docs.myfatoorah.com/reference/get-customer-details
+ * The v2 API has no standalone customer-details endpoint. The previous v3
+ * implementation was non-functional. getDetails() throws until/unless a
+ * supported lookup is wired (saved-card flows or vault APIs).
  */
 class MyFatoorahCustomer
 {
@@ -21,17 +23,13 @@ class MyFatoorahCustomer
     }
 
     /**
-     * Get customer details by reference.
-     *
-     * @param string $customerRef
      * @return array<string, mixed>
      */
     public function getDetails(string $customerRef): array
     {
-        $response = $this->http->get(
-            $this->gateway->getBaseUrl() . "/v3/customers/{$customerRef}"
+        throw new \BadMethodCallException(
+            'MyFatoorah v2 has no standalone customer lookup endpoint. ' .
+            'Customer info is returned as part of GetPaymentStatus; use status() or getInvoice() and read it from the raw response.'
         );
-
-        return (array) Arr::get($response, 'Data', $response);
     }
 }

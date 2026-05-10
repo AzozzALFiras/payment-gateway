@@ -8,13 +8,12 @@ use AzozzALFiras\PaymentGateway\Http\HttpClient;
 use AzozzALFiras\PaymentGateway\Support\Arr;
 
 /**
- * MyFatoorah Session Management (V3 API).
+ * MyFatoorah Session Management.
  *
- * Sessions are used for Embedded Payment flows:
- *  - COMPLETE_PAYMENT: Payment is completed within the session
- *  - COLLECT_DETAILS:  Card details are collected for later processing
- *
- * @link https://docs.myfatoorah.com/reference/create-session
+ * Embedded checkout sessions are not yet wired to MyFatoorah's v2
+ * InitiateSession endpoint. The previous v3 implementation was non-functional
+ * (the v3 Orders API rejects the payload shape). Both methods throw until
+ * a v2-compatible implementation lands.
  */
 class MyFatoorahSession
 {
@@ -25,12 +24,7 @@ class MyFatoorahSession
     }
 
     /**
-     * Create a new payment session.
-     *
-     * @param float                $amount
-     * @param string               $mode     'COMPLETE_PAYMENT' or 'COLLECT_DETAILS'
-     * @param string               $currency ISO 4217 currency code
-     * @param array<string, mixed> $extra    Additional parameters
+     * @param array<string, mixed> $extra
      * @return array<string, mixed>
      */
     public function create(
@@ -39,36 +33,20 @@ class MyFatoorahSession
         string $currency = 'KWD',
         array $extra = []
     ): array {
-        $payload = array_merge([
-            'PaymentMode' => $mode,
-            'Order'       => [
-                'Amount'   => $amount,
-                'Currency' => $currency,
-            ],
-        ], $extra);
-
-        $response = $this->http->post(
-            $this->gateway->getBaseUrl() . '/v3/sessions',
-            $payload
+        throw new \BadMethodCallException(
+            'MyFatoorah embedded sessions are not implemented in this release. ' .
+            'Use purchase() or createInvoice() for the hosted checkout flow.'
         );
-
-        return (array) Arr::get($response, 'Data', $response);
     }
 
     /**
-     * Get session details by SessionId.
-     *
-     * @param string $sessionId
      * @return array<string, mixed>
-     *
-     * @link https://docs.myfatoorah.com/reference/get-session-details
      */
     public function getDetails(string $sessionId): array
     {
-        $response = $this->http->get(
-            $this->gateway->getBaseUrl() . "/v3/sessions/{$sessionId}"
+        throw new \BadMethodCallException(
+            'MyFatoorah embedded sessions are not implemented in this release. ' .
+            'Use status() or getInvoice() instead.'
         );
-
-        return (array) Arr::get($response, 'Data', $response);
     }
 }

@@ -90,28 +90,36 @@ class MyFatoorahInvoice
     }
 
     /**
-     * Get invoice by InvoiceId.
+     * Get invoice by InvoiceId via the v2 GetPaymentStatus endpoint.
      *
-     * @link https://docs.myfatoorah.com/reference/get-invoice-by-invoiceid
+     * @link https://docs.myfatoorah.com/reference/get-payment-status
      */
     public function getByInvoiceId(string $invoiceId): InvoiceResponse
     {
-        $response = $this->http->get(
-            $this->gateway->getBaseUrl() . "/v3/invoices/{$invoiceId}"
+        $response = $this->http->post(
+            $this->gateway->getBaseUrl() . '/v2/GetPaymentStatus',
+            [
+                'Key'     => $invoiceId,
+                'KeyType' => 'InvoiceId',
+            ]
         );
 
         return $this->parseInvoiceResponse($response);
     }
 
     /**
-     * Get invoice by ExternalIdentifier.
+     * Get invoice by external customer reference via the v2 GetPaymentStatus endpoint.
      *
-     * @link https://docs.myfatoorah.com/reference/get-invoice-by-externalidentifier
+     * @link https://docs.myfatoorah.com/reference/get-payment-status
      */
     public function getByExternalId(string $externalId): InvoiceResponse
     {
-        $response = $this->http->get(
-            $this->gateway->getBaseUrl() . "/v3/invoices/external/{$externalId}"
+        $response = $this->http->post(
+            $this->gateway->getBaseUrl() . '/v2/GetPaymentStatus',
+            [
+                'Key'     => $externalId,
+                'KeyType' => 'CustomerReference',
+            ]
         );
 
         return $this->parseInvoiceResponse($response);
@@ -126,16 +134,18 @@ class MyFatoorahInvoice
     {
         $isSuccess = (bool) Arr::get($response, 'IsSuccess', false);
         $data = (array) Arr::get($response, 'Data', []);
+        $transactions = (array) Arr::get($data, 'InvoiceTransactions', []);
+        $latest = $transactions[0] ?? [];
 
         return new InvoiceResponse(
             success:       $isSuccess,
             invoiceId:     (string) Arr::get($data, 'InvoiceId', ''),
-            transactionNo: (string) Arr::get($data, 'PaymentId', ''),
+            transactionNo: (string) Arr::get($latest, 'TransactionId', ''),
             status:        (string) Arr::get($data, 'InvoiceStatus', ''),
             message:       (string) Arr::get($response, 'Message', ''),
             amount:        (float) Arr::get($data, 'InvoiceValue', 0),
             currency:      (string) Arr::get($data, 'DisplayCurrencyIso', ''),
-            paymentUrl:    (string) Arr::get($data, 'PaymentURL', ''),
+            paymentUrl:    (string) Arr::get($data, 'InvoiceURL', ''),
             rawResponse:   $response,
         );
     }

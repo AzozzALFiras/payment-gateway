@@ -273,19 +273,20 @@ class MyFatoorahGateway implements GatewayInterface, SupportsRefund, SupportsWeb
     // ──────────────────────────────────────────
 
     /**
-     * Create a new payment.
+     * Create a new payment via the v2 SendPayment endpoint.
      *
-     * @link https://docs.myfatoorah.com/reference/create-payment
+     * @link https://docs.myfatoorah.com/reference/sendpayment
      */
     public function purchase(PaymentRequest $request): PaymentResponse
     {
         $payload = [
+            'NotificationOption' => 'LNK',
             'InvoiceValue'       => $request->amount,
             'DisplayCurrencyIso' => $request->currency,
         ];
 
         if ($request->orderId !== '') {
-            $payload['ExternalIdentifier'] = $request->orderId;
+            $payload['CustomerReference'] = $request->orderId;
         }
 
         if ($request->callbackUrl !== '') {
@@ -294,16 +295,14 @@ class MyFatoorahGateway implements GatewayInterface, SupportsRefund, SupportsWeb
 
         if ($request->returnUrl !== '') {
             $payload['ErrorUrl'] = $request->returnUrl;
+        } elseif ($request->callbackUrl !== '') {
+            $payload['ErrorUrl'] = $request->callbackUrl;
         }
 
         if ($request->customer !== null) {
-            $payload['CustomerName']       = $request->customer->name;
-            $payload['CustomerEmail']      = $request->customer->email;
-            $payload['CustomerMobile']     = $request->customer->phone;
-            $payload['CustomerAddress']    = [
-                'Address' => $request->customer->address,
-                'City'    => $request->customer->city,
-            ];
+            $payload['CustomerName']   = $request->customer->name;
+            $payload['CustomerEmail']  = $request->customer->email;
+            $payload['CustomerMobile'] = $request->customer->phone;
         }
 
         if (! empty($request->items)) {
@@ -318,7 +317,7 @@ class MyFatoorahGateway implements GatewayInterface, SupportsRefund, SupportsWeb
         $payload = array_merge($payload, $request->metadata);
 
         $response = $this->http->post(
-            $this->getBaseUrl() . '/v3/payments',
+            $this->getBaseUrl() . '/v2/SendPayment',
             $payload
         );
 
@@ -327,34 +326,40 @@ class MyFatoorahGateway implements GatewayInterface, SupportsRefund, SupportsWeb
 
         return new PaymentResponse(
             success:       $isSuccess,
-            transactionId: (string) Arr::get($data, 'PaymentId', ''),
+            transactionId: (string) Arr::get($data, 'InvoiceId', ''),
             status:        $isSuccess ? 'created' : 'failed',
             message:       (string) Arr::get($response, 'Message', ''),
             amount:        $request->amount,
             currency:      $request->currency,
-            paymentUrl:    (string) Arr::get($data, 'PaymentURL', ''),
+            paymentUrl:    (string) Arr::get($data, 'InvoiceURL', ''),
             rawResponse:   $response,
         );
     }
 
     /**
-     * Get payment details by PaymentId.
+     * Get payment status by InvoiceId via the v2 GetPaymentStatus endpoint.
      *
-     * @link https://docs.myfatoorah.com/reference/get-payment-details
+     * @link https://docs.myfatoorah.com/reference/get-payment-status
      */
     public function status(string $paymentId): PaymentResponse
     {
-        $response = $this->http->get(
-            $this->getBaseUrl() . "/v3/payments/{$paymentId}"
+        $response = $this->http->post(
+            $this->getBaseUrl() . '/v2/GetPaymentStatus',
+            [
+                'Key'     => $paymentId,
+                'KeyType' => 'InvoiceId',
+            ]
         );
 
         $isSuccess = (bool) Arr::get($response, 'IsSuccess', false);
-        $data = Arr::get($response, 'Data', []);
+        $data = (array) Arr::get($response, 'Data', []);
+        $transactions = (array) Arr::get($data, 'InvoiceTransactions', []);
+        $latest = $transactions[0] ?? [];
 
         return new PaymentResponse(
             success:       $isSuccess,
-            transactionId: (string) Arr::get($data, 'PaymentId', $paymentId),
-            status:        (string) Arr::get($data, 'PaymentStatus', ''),
+            transactionId: (string) Arr::get($latest, 'TransactionId', (string) Arr::get($data, 'InvoiceId', $paymentId)),
+            status:        (string) Arr::get($data, 'InvoiceStatus', ''),
             message:       (string) Arr::get($response, 'Message', ''),
             amount:        (float) Arr::get($data, 'InvoiceValue', 0),
             currency:      (string) Arr::get($data, 'DisplayCurrencyIso', ''),
@@ -363,62 +368,51 @@ class MyFatoorahGateway implements GatewayInterface, SupportsRefund, SupportsWeb
     }
 
     /**
-     * Update a payment — Capture or Release an authorized amount.
+     * Update a payment — not supported on MyFatoorah v2.
      *
-     * @param string               $paymentId
-     * @param string               $action    'Capture' or 'Release'
-     * @param float|null           $amount    Amount to capture (optional, full by default)
-     * @param array<string, mixed> $extra     Additional parameters
-     * @return PaymentResponse
-     *
-     * @link https://docs.myfatoorah.com/reference/update-payment
+     * v2 SendPayment auto-captures. There is no Capture/Release action.
+     * Use refund() for refunds.
      */
     public function updatePayment(string $paymentId, string $action, ?float $amount = null, array $extra = []): PaymentResponse
     {
-        $payload = array_merge([
-            'Action' => $action, // 'Capture' or 'Release'
-        ], $extra);
-
-        if ($amount !== null) {
-            $payload['Amount'] = $amount;
-        }
-
-        $response = $this->http->put(
-            $this->getBaseUrl() . "/v3/payments/{$paymentId}",
-            $payload
-        );
-
-        $isSuccess = (bool) Arr::get($response, 'IsSuccess', false);
-        $data = Arr::get($response, 'Data', []);
-
-        return new PaymentResponse(
-            success:       $isSuccess,
-            transactionId: (string) Arr::get($data, 'PaymentId', $paymentId),
-            status:        (string) Arr::get($data, 'PaymentStatus', $action),
-            message:       (string) Arr::get($response, 'Message', ''),
-            amount:        (float) Arr::get($data, 'InvoiceValue', $amount ?? 0),
-            currency:      (string) Arr::get($data, 'DisplayCurrencyIso', ''),
-            rawResponse:   $response,
+        throw new \BadMethodCallException(
+            'MyFatoorah v2 does not support payment updates (Capture/Release). ' .
+            'Payments are auto-captured on SendPayment; use refund() for refunds.'
         );
     }
 
     // ──────────────────────────────────────────
-    //  Refunds (via Update Payment)
+    //  Refunds (via /v2/MakeRefund)
     // ──────────────────────────────────────────
 
     public function refund(RefundRequest $request): RefundResponse
     {
-        $result = $this->updatePayment($request->transactionId, 'Release', $request->amount, $request->metadata);
+        $payload = array_merge([
+            'Key'                     => $request->transactionId,
+            'KeyType'                 => 'InvoiceId',
+            'Amount'                  => $request->amount,
+            'Comment'                 => $request->reason,
+            'RefundChargeOnCustomer'  => false,
+            'ServiceChargeOnCustomer' => false,
+        ], $request->metadata);
+
+        $response = $this->http->post(
+            $this->getBaseUrl() . '/v2/MakeRefund',
+            $payload
+        );
+
+        $isSuccess = (bool) Arr::get($response, 'IsSuccess', false);
+        $data = (array) Arr::get($response, 'Data', []);
 
         return new RefundResponse(
-            success:       $result->success,
-            refundId:      $result->transactionId,
+            success:       $isSuccess,
+            refundId:      (string) Arr::get($data, 'RefundReference', (string) Arr::get($data, 'RefundId', '')),
             transactionId: $request->transactionId,
-            status:        $result->status,
-            message:       $result->message,
+            status:        $isSuccess ? 'refunded' : 'failed',
+            message:       (string) Arr::get($response, 'Message', ''),
             amount:        $request->amount,
             currency:      $request->currency,
-            rawResponse:   $result->rawResponse,
+            rawResponse:   $response,
         );
     }
 
