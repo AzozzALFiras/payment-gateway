@@ -28,6 +28,7 @@ class MyFatoorahInvoice
     public function create(InvoiceRequest $request): InvoiceResponse
     {
         $payload = [
+            'NotificationOption' => 'LNK',
             'InvoiceValue'       => $request->amount,
             'DisplayCurrencyIso' => $request->currency,
         ];
@@ -38,6 +39,7 @@ class MyFatoorahInvoice
 
         if ($request->callbackUrl !== '') {
             $payload['CallBackUrl'] = $request->callbackUrl;
+            $payload['ErrorUrl']    = $request->callbackUrl;
         }
 
         if ($request->customer !== null) {
@@ -47,13 +49,13 @@ class MyFatoorahInvoice
         }
 
         if ($request->smsNotification !== null) {
-            $payload['SendInvoiceOption'] = 'SMS';
-            $payload['CustomerMobile']    = $request->smsNotification;
+            $payload['NotificationOption'] = 'SMS';
+            $payload['CustomerMobile']     = $request->smsNotification;
         }
 
         if ($request->emailNotification !== null) {
-            $payload['SendInvoiceOption'] = 'Email';
-            $payload['CustomerEmail']     = $request->emailNotification;
+            $payload['NotificationOption'] = 'EML';
+            $payload['CustomerEmail']      = $request->emailNotification;
         }
 
         if (! empty($request->items)) {
@@ -67,7 +69,7 @@ class MyFatoorahInvoice
         $payload = array_merge($payload, $request->metadata);
 
         $response = $this->http->post(
-            $this->gateway->getBaseUrl() . '/v3/payments',
+            $this->gateway->getBaseUrl() . '/v2/SendPayment',
             $payload
         );
 
@@ -82,7 +84,7 @@ class MyFatoorahInvoice
             message:       (string) Arr::get($response, 'Message', ''),
             amount:        $request->amount,
             currency:      $request->currency,
-            paymentUrl:    (string) Arr::get($data, 'PaymentURL', ''),
+            paymentUrl:    (string) Arr::get($data, 'InvoiceURL', ''),
             rawResponse:   $response,
         );
     }
